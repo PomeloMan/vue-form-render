@@ -29,6 +29,7 @@ module.exports = {
   },
 
   configureWebpack: config => {
+    config.devtool = 'source-map'
     config.resolve.alias['@'] = path.resolve(__dirname, 'packages')
   }
 }

@@ -28,9 +28,10 @@
             <template v-for="fieldConfigItem in fieldConfigItems">
               <vfr-form-item
                 :key="fieldConfigItem.key"
-                :hidden="fieldConfigItem.hidden"
                 :form="fieldConfig"
                 :formItem="fieldConfigItem"
+                :hidden="fieldConfigItem.hidden"
+                @checked="fieldConfig = $event"
               ></vfr-form-item>
             </template>
           </a-form-model>
@@ -52,12 +53,8 @@ export default {
     AFormModel: FormModel,
     VfrFormItem: FormItem,
   },
-  model: {
-    prop: 'config',
-    event: 'change',
-  },
   props: {
-    config: {
+    configs: {
       type: Object,
       default: () => ({
         form: {
@@ -73,29 +70,16 @@ export default {
   },
   computed: {
     formConfig() {
-      return this.config.form.values
+      return this.configs.form.values
     },
     formConfigItems() {
-      return this.config.form.items
+      return this.configs.form.items
     },
     fieldConfig() {
-      return this.config.field.values
+      return this.configs.field.values
     },
     fieldConfigItems() {
-      return this.config.field.items
-    },
-  },
-  watch: {
-    config: {
-      handler(val) {
-        // 根据字段 fieldConfig 和 fieldConfigItems 判断 activeKey
-        if (this.fieldConfig === null && this.fieldConfigItems === null) {
-          this.activeKey = 'form-config'
-        }
-        this.$emit('change', val)
-      },
-      immediate: true,
-      deep: true,
+      return this.configs.field.items
     },
   },
   data() {

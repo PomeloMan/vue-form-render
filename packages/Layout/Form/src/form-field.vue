@@ -16,18 +16,17 @@
     </div>
     <!-- 表单项 -->
     <vfr-form-item
-      :form="form"
+      :form="formData"
       :formItem="formItem"
       :labelCol="() => labelCol(formItem)"
       :wrapperCol="() => wrapperCol(formItem)"
+      @checked="formData = $event"
     ></vfr-form-item>
   </div>
 </template>
 
 <script>
-// import FormModel from 'ant-design-vue/lib/form-model'
 import Icon from 'ant-design-vue/lib/icon'
-
 import FormItem from './form-item'
 import { generateTimeBase64 } from '../../../Utils'
 
@@ -36,6 +35,10 @@ export default {
   components: {
     AIcon: Icon,
     VfrFormItem: FormItem,
+  },
+  model: {
+    prop: 'form',
+    event: 'change',
   },
   props: {
     // 当前选中的表单项ID
@@ -72,6 +75,16 @@ export default {
     wrapperCol: {
       type: Function,
       default: () => {},
+    },
+  },
+  computed: {
+    formData: {
+      get() {
+        return this.form
+      },
+      set(val) {
+        this.$emit('change', val)
+      },
     },
   },
   data() {

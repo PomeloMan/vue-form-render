@@ -27,6 +27,10 @@ import { generateTimeBase64 } from '../../../Utils'
 const basicComponents = [
   { name: '输入框', type: 'input' },
   { name: '大输入框', type: 'textarea' },
+  { name: '数字输入框', type: 'input-number' },
+  { name: '日期选择', type: 'date-picker' },
+  { name: '时间选择', type: 'time-picker' },
+  { name: '是否选择', type: 'checkbox' },
 ]
 
 export default {
@@ -56,10 +60,11 @@ ul {
   flex-wrap: wrap;
   align-content: flex-start;
   padding-left: 0;
+  width: 256px;
 }
 .list-item {
-  width: 7.2rem;
-  height: 2.2rem;
+  width: 120px;
+  height: 36px;
   margin: 4px;
   cursor: pointer;
   display: flex;

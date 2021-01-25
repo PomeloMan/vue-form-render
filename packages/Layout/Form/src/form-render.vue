@@ -7,7 +7,7 @@
         <div class="vfr-container" @click="cancelSelect">
           <a-form-model
             ref="form"
-            :model="schema.values"
+            :model="formData"
             :labelCol="labelCol()"
             :wrapperCol="wrapperCol()"
           >
@@ -22,25 +22,25 @@
             >
               <transition-group style="display: block">
                 <template v-for="(formItem, index) in formItems">
-                  <vfr-form-field
-                    :key="formItem.id"
-                    :labelCol="() => labelCol(formItem)"
-                    :wrapperCol="() => wrapperCol(formItem)"
-                    v-bind="{
-                      id,
-                      index,
-                      configs,
-                      formItem,
-                      form: schema.values,
-                      hidden: formItem.hidden,
-                    }"
-                    :class="{
-                      active: id === formItem.id,
-                      editable: editable,
-                    }"
-                    :style="{ width: elementWidth(formItem) }"
-                    @click.native="select($event, formItem)"
-                  ></vfr-form-field>
+                  <div :key="formItem.id" @click="select(formItem)">
+                    <vfr-form-field
+                      :labelCol="() => labelCol(formItem)"
+                      :wrapperCol="() => wrapperCol(formItem)"
+                      v-model="formData"
+                      v-bind="{
+                        id,
+                        index,
+                        configs,
+                        formItem,
+                        hidden: formItem.hidden,
+                      }"
+                      :class="{
+                        active: id === formItem.id,
+                        editable: editable,
+                      }"
+                      :style="{ width: elementWidth(formItem) }"
+                    ></vfr-form-field>
+                  </div>
                 </template>
               </transition-group>
             </draggable>
@@ -100,6 +100,16 @@ export default {
       default: () => ({ values: {}, items: [], configs: {} }),
     },
   },
+  watch: {
+    schema: {
+      handler(val) {
+        console.log(val)
+        this.$emit('change', val)
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
   computed: {
     // JSON格式化
     schemaJson() {
@@ -116,6 +126,15 @@ export default {
       },
       set(val) {
         this.configs.editable = val
+      },
+    },
+    // 表单内容
+    formData: {
+      get() {
+        return this.schema.values
+      },
+      set(val) {
+        this.schema.values = val
       },
     },
     // 表单项集合
@@ -178,16 +197,6 @@ export default {
       }
     },
   },
-  watch: {
-    schema: {
-      handler(val) {
-        console.log(val)
-        this.$emit('change', val)
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
   data() {
     return {
       menus: [],
@@ -206,12 +215,15 @@ export default {
       this.$emit('cancel')
     },
     // 选中表单项
-    select(event, formItem) {
+    select(formItem) {
+      // 阻止执行取消事件
+      event.preventDefault()
+      event.stopPropagation()
       if (this.editable) {
-        event.preventDefault()
-        event.stopPropagation()
-        this.id = formItem.id
-        this.$emit('select', this.id, formItem)
+        if (this.id !== formItem.id) {
+          this.id = formItem.id
+          this.$emit('select', formItem)
+        }
       }
     },
   },

@@ -135,12 +135,14 @@ export function generateBaseItems() {
     { key: 'labelWidth', name: '标签宽度', type: 'slider', min: 0, max: 50 },
     {
       key: 'disabled',
-      type: 'checkbox',
+      name: '置灰',
+      type: 'checkbox-group',
       options: [{ label: '置灰', value: true }]
     },
     {
       key: 'required',
-      type: 'checkbox',
+      name: '必填项',
+      type: 'checkbox-group',
       options: [{ label: '必填项', value: true }]
     },
     { key: 'pattern', name: '校验正则表达式', type: 'input' }
