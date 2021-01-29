@@ -7,7 +7,7 @@
         <ul>
           <template v-for="comp in basicComponents">
             <div :key="comp.id" draggable="true">
-              <li class="list-item" @click="addFormItem(comp)">
+              <li class="list-item" @click="select(comp)">
                 {{ comp.name }}
               </li>
             </div>
@@ -44,10 +44,10 @@ export default {
     }
   },
   methods: {
-    addFormItem(formItem) {
+    select(formItem) {
       formItem.id = generateTimeBase64()
       formItem.key = `${formItem.type}_${formItem.id.substr(10, 8)}`
-      this.$emit('addFormItem', { ...formItem })
+      this.$emit('select', { ...formItem })
     },
   },
 }

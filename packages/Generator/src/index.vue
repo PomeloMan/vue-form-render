@@ -4,21 +4,22 @@
     <!-- 组件菜单 -->
     <vfr-component-layout
       class="vfr-component-layout"
-      @addFormItem="addFormItem"
+      @select="addFormItem"
     ></vfr-component-layout>
     <!-- 表单 -->
     <vfr-form-render
       ref="render"
       class="vfr-form-render"
-      :schema="configs.schema"
-      @select="handleSelect"
-      @cancel="handleCancel"
+      v-model="schema"
+      @select="selectFormField"
+      @cancel="unSelectFormField"
     ></vfr-form-render>
     <!-- 表单属性配置 -->
     <vfr-property-layout
       ref="property"
       class="vfr-property-layout"
-      :configs="configs.property"
+      v-model="schema"
+      :configs="configs"
     ></vfr-property-layout>
   </div>
 </template>
@@ -35,88 +36,69 @@ export default {
     VfrFormRender: FormLayout.FormRender,
     VfrPropertyLayout: PropertyLayout,
   },
+  model: {
+    prop: 'data',
+    event: 'change',
+  },
   props: {
-    schema: {
+    data: {
       type: Object,
       default: () => ({}),
     },
   },
-  watch: {
-    'configs.property.field.values': {
-      handler(val, old) {
-        if (val && !old) {
-          // 从无到有，自动切到字段配置Tab
-          this.$refs.property.activeKey = 'field-config'
-        } else if (!val && old) {
-          // 从有到无，自动切换到表单配置Tab
-          this.$refs.property.activeKey = 'form-config'
-        }
-        // 检查字段key字段是否变更，如果变更同步改schema数据
-        if (val && val.origin && val.key !== val.origin.key) {
-          const values = { ...this.schema.values }
-          values[val.key] = values[val.origin.key]
-          delete values[val.origin.key]
-          this.schema.values = values
-          val.origin.key = val.key // 更新旧对象属性
-        }
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
   computed: {
+    schema: {
+      get() {
+        return this.data
+      },
+      set(val) {
+        this.$emit('change', val)
+      },
+    },
     configs: {
       get() {
         return {
-          schema: this.schema,
-          property: {
-            // 属性面板
-            form: { values: this.schema.configs, items: generateFormItems() }, // 表单配置
-            field: { values: this.field.values, items: this.field.items }, // 字段配置
-          },
+          formItems: generateFormItems(),
+          fieldItems: this.selectedFieldItems,
         }
-      },
-      set(val) {
-        console.log(val)
       },
     },
   },
   data() {
     return {
-      // 表单组件属性配置字段
-      field: {
-        values: null,
-        items: null,
-      },
+      // 选中项表单组件属性配置字段
+      selectedFieldItems: null,
     }
   },
   methods: {
     // 添加表单组件
     addFormItem(formItem) {
       this.$nextTick(() => {
-        if (this.$refs.render) {
-          this.$refs.render.selectedItemId = formItem.id
+        const { properties } = this.schema
+        properties[formItem.id] = formItem
+        const { render } = this.$refs
+        if (render) {
+          render.id = formItem.id
+          this.selectFormField(formItem)
         }
-        const { items } = this.schema
-        items.push(formItem)
       })
     },
     // 表单布局，选中表单字段
-    handleSelect(formItem) {
-      // this.handleCancel()
+    selectFormField(formItem) {
       setTimeout(() => {
-        this.field.values = formItem
-        this.field.values.origin = { ...formItem } // 由于watch监听对象获取不到旧对象属性，这里添加origin属性存储旧对象
+        delete formItem._key
+        const { schema } = this
+        schema.__selected__ = { ...formItem } // 标记选中项
+        this.schema = { ...schema } // 重新赋值刷新子元素schema数据
         // 根据FormType获取对应的FormItems
-        this.field.items = generateFormItems(formItem.type)
+        this.selectedFieldItems = generateFormItems(formItem.type)
+        this.$refs.property.activeKey = 'field-config'
       }, 0)
     },
     // 表单布局，取消选中表单字段
-    handleCancel() {
-      if (this.field.values && this.field.values.origin)
-        delete this.field.values.origin
-      this.field.values = null
-      this.field.items = null
+    unSelectFormField() {
+      this.selectedFieldItems = null
+      this.$refs.property.activeKey = 'form-config'
     },
   },
 }

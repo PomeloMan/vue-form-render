@@ -9,12 +9,12 @@
         style="height: 100%"
       >
         <a-tab-pane key="form-config" tab="表单配置">
-          <a-form-model :model="formConfig" layout="vertical">
-            <template v-for="formConfigItem in formConfigItems">
+          <a-form-model :model="formData" layout="vertical">
+            <template v-for="formItem in formItems">
               <vfr-form-item
-                :key="formConfigItem.key"
-                :form="formConfig"
-                :formItem="formConfigItem"
+                :key="formItem.key"
+                :form="formData"
+                :formItem="formItem"
               ></vfr-form-item>
             </template>
           </a-form-model>
@@ -22,16 +22,16 @@
         <a-tab-pane
           key="field-config"
           tab="字段配置"
-          v-if="fieldConfig !== null && fieldConfigItems !== null"
+          v-if="fieldData !== null && fieldItems !== null"
         >
-          <a-form-model :model="fieldConfig" layout="vertical">
-            <template v-for="fieldConfigItem in fieldConfigItems">
+          <a-form-model v-model="fieldData" layout="vertical">
+            <template v-for="fieldItem in fieldItems">
               <vfr-form-item
-                :key="fieldConfigItem.key"
-                :form="fieldConfig"
-                :formItem="fieldConfigItem"
-                :hidden="fieldConfigItem.hidden"
-                @checked="fieldConfig = $event"
+                :key="fieldItem.key"
+                :form="fieldData"
+                :formItem="fieldItem"
+                :hidden="fieldItem.hidden"
+                @checked="handleChecked(fieldItem.key, $event)"
               ></vfr-form-item>
             </template>
           </a-form-model>
@@ -53,39 +53,74 @@ export default {
     AFormModel: FormModel,
     VfrFormItem: FormItem,
   },
+  model: {
+    prop: 'schema',
+    event: 'change',
+  },
   props: {
+    schema: {
+      type: Object,
+      default: () => ({}),
+    },
     configs: {
       type: Object,
-      default: () => ({
-        form: {
-          values: null, // 值
-          items: [], // 字段
-        }, // 表单属性配置
-        field: {
-          values: null, // 值
-          items: [], // 字段
-        }, // 字段属性配置
-      }),
+      default: () => ({}),
     },
   },
   computed: {
-    formConfig() {
-      return this.configs.form.values
+    // 表单配置
+    formData() {
+      return this.schema.configs
     },
-    formConfigItems() {
-      return this.configs.form.items
+    // 表单配置项
+    formItems() {
+      return this.configs.formItems
     },
-    fieldConfig() {
-      return this.configs.field.values
+    // 字段配置
+    fieldData: {
+      get() {
+        if (this.schema.__selected__) {
+          const id = this.schema.__selected__.id
+          return this.schema.properties[id]
+        }
+        return null
+      },
+      set(val) {
+        const id = this.schema.__selected__.id
+        this.schema.properties[id] = val
+      },
     },
-    fieldConfigItems() {
-      return this.configs.field.items
+    // 字段配置项
+    fieldItems() {
+      return this.configs.fieldItems
+    },
+  },
+  watch: {
+    // 检查字段key字段是否变更，如果变更同步改schema.values数据
+    'fieldData.key': {
+      handler(key, old) {
+        const { __selected__ } = this.schema
+        if (old === (__selected__ && __selected__.key)) {
+          const { schema } = this
+          schema.values[key] = schema.values[old]
+          delete schema.values[old]
+          this.schema.__selected__.key = key
+          this.$emit('change', schema)
+        }
+      },
     },
   },
   data() {
     return {
       activeKey: 'form-config',
     }
+  },
+  methods: {
+    handleChecked(key, val) {
+      const fieldData = { ...this.fieldData }
+      fieldData[key] = val
+      this.fieldData = fieldData
+    },
   },
 }
 </script>

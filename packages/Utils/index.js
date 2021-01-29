@@ -136,15 +136,19 @@ export function generateBaseItems() {
     {
       key: 'disabled',
       name: '置灰',
-      type: 'checkbox-group',
-      options: [{ label: '置灰', value: true }]
+      type: 'checkbox',
     },
     {
       key: 'required',
       name: '必填项',
-      type: 'checkbox-group',
-      options: [{ label: '必填项', value: true }]
+      type: 'checkbox',
     },
+    // {
+    //   key: 'required',
+    //   name: '必填项',
+    //   type: 'checkbox-group',
+    //   options: [{ label: '必填项', value: true }]
+    // },
     { key: 'pattern', name: '校验正则表达式', type: 'input' }
   ]
 }

@@ -258,11 +258,9 @@ export default {
   },
   methods: {
     handleChecked(formItem) {
-      event.preventDefault();
-      event.stopPropagation();
-      const form = { ...this.form }
-      form[formItem.key] = !form[formItem.key]
-      this.$emit('checked', form)
+      event.preventDefault()
+      event.stopPropagation()
+      this.$emit('checked', !this.form[formItem.key])
     },
   },
 }

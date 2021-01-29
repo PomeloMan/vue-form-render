@@ -22,25 +22,26 @@
             >
               <transition-group style="display: block">
                 <template v-for="(formItem, index) in formItems">
-                  <div :key="formItem.id" @click="select(formItem)">
-                    <vfr-form-field
-                      :labelCol="() => labelCol(formItem)"
-                      :wrapperCol="() => wrapperCol(formItem)"
-                      v-model="formData"
-                      v-bind="{
-                        id,
-                        index,
-                        configs,
-                        formItem,
-                        hidden: formItem.hidden,
-                      }"
-                      :class="{
-                        active: id === formItem.id,
-                        editable: editable,
-                      }"
-                      :style="{ width: elementWidth(formItem) }"
-                    ></vfr-form-field>
-                  </div>
+                  <vfr-form-field
+                    :key="formItem.id"
+                    :labelCol="() => labelCol(formItem)"
+                    :wrapperCol="() => wrapperCol(formItem)"
+                    v-model="formData"
+                    v-bind="{
+                      id,
+                      index,
+                      configs,
+                      formItem,
+                      hidden: formItem.hidden,
+                    }"
+                    :class="{
+                      active: id === formItem.id && editable,
+                      editable: editable,
+                    }"
+                    :style="{ width: elementWidth(formItem) }"
+                    @click.native="select(formItem)"
+                    @events="handleEvents"
+                  ></vfr-form-field>
                 </template>
               </transition-group>
             </draggable>
@@ -62,12 +63,10 @@
 <script>
 import FormModel from 'ant-design-vue/lib/form-model'
 import Input from 'ant-design-vue/lib/input'
-
 import FormField from './form-field'
 import FormToolbar from './form-toolbar'
-
 import Draggable from 'vuedraggable'
-import { generateToolbarMenus } from '../../../Utils'
+import { generateTimeBase64, generateToolbarMenus } from '../../../Utils'
 
 export const layoutConfig = {
   horizontal: {
@@ -100,16 +99,6 @@ export default {
       default: () => ({ values: {}, items: [], configs: {} }),
     },
   },
-  watch: {
-    schema: {
-      handler(val) {
-        console.log(val)
-        this.$emit('change', val)
-      },
-      immediate: true,
-      deep: true,
-    },
-  },
   computed: {
     // JSON格式化
     schemaJson() {
@@ -140,10 +129,28 @@ export default {
     // 表单项集合
     formItems: {
       get() {
-        return this.schema.items
+        const formItems = []
+        Object.keys(this.schema.properties).forEach((key) => {
+          formItems.push(this.schema.properties[key])
+        })
+        return formItems
       },
-      set(val) {
-        this.schema.items = val
+      set(items) {
+        const properties = {}
+        items.forEach((item) => {
+          properties[item.id] = item
+        })
+        const schema = { ...this.schema }
+        schema.properties = properties
+        if (items.length < this.formItems.length) {
+          delete schema.__selected__
+        } else if (items.length > this.formItems.length) {
+          const selectedItem = items.find((item) => item.id === this.id)
+          if (selectedItem) {
+            schema.__selected__ = { ...selectedItem }
+          }
+        }
+        this.$emit('change', schema)
       },
     },
     // 拖拽组件属性
@@ -225,6 +232,38 @@ export default {
           this.$emit('select', formItem)
         }
       }
+    },
+    handleEvents(name, value) {
+      switch (name) {
+        case 'delete':
+          this.deleteFormField(value)
+          break
+        case 'copy':
+          this.copyFormField(value)
+          break
+        default:
+          break
+      }
+    },
+    // 删除表单项
+    deleteFormField(formItem) {
+      event.preventDefault()
+      event.stopPropagation()
+      this.cancelSelect()
+      this.formItems = this.formItems.filter((item) => item.id !== formItem.id)
+    },
+    // 复制表单项
+    copyFormField(formItem) {
+      event.preventDefault()
+      event.stopPropagation()
+      const formItemCopy = { ...formItem }
+      formItemCopy.id = generateTimeBase64()
+      formItemCopy.key = formItemCopy.type + '_' + formItemCopy.id.substr(10, 8)
+      const formItems = [...this.formItems]
+      const index = formItems.findIndex((item) => item.id === formItem.id)
+      formItems.splice(index + 1, 0, formItemCopy)
+      this.id = formItemCopy.id
+      this.formItems = formItems
     },
   },
 }

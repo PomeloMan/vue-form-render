@@ -11,8 +11,8 @@
     </div>
     <!-- 底部操作栏（删除，复制） -->
     <div class="action-group" v-if="configs.editable && id === formItem.id">
-      <a-icon type="delete" @click="deleteFormItem(formItem, index)"></a-icon>
-      <a-icon type="copy" @click="copyFormItem(formItem, index)"></a-icon>
+      <a-icon type="delete" @click="handleEvents('delete', formItem)"></a-icon>
+      <a-icon type="copy" @click="handleEvents('copy', formItem)"></a-icon>
     </div>
     <!-- 表单项 -->
     <vfr-form-item
@@ -20,7 +20,7 @@
       :formItem="formItem"
       :labelCol="() => labelCol(formItem)"
       :wrapperCol="() => wrapperCol(formItem)"
-      @checked="formData = $event"
+      @checked="handleChecked(formItem.key, $event)"
     ></vfr-form-item>
   </div>
 </template>
@@ -28,7 +28,6 @@
 <script>
 import Icon from 'ant-design-vue/lib/icon'
 import FormItem from './form-item'
-import { generateTimeBase64 } from '../../../Utils'
 
 export default {
   name: 'vfr-form-field',
@@ -44,11 +43,6 @@ export default {
     // 当前选中的表单项ID
     id: {
       type: String,
-      default: null,
-    },
-    // 表单项索引，用于删除与复制
-    index: {
-      type: Number,
       default: null,
     },
     // 表单配置信息
@@ -91,19 +85,18 @@ export default {
     return {}
   },
   methods: {
-    // 删除表单项
-    deleteFormItem(formItem, index) {
-      this.formItems.splice(index, 1)
-      this.id = null
+    /**
+     * 处理事件
+     * @param name 事件名称
+     * @param value 事件参数
+     */
+    handleEvents(name, value) {
+      this.$emit('events', name, value)
     },
-    // 复制表单项
-    copyFormItem(formItem, index) {
-      const formItemCopy = { ...formItem }
-      formItemCopy.id = generateTimeBase64()
-      this.formItems.splice(index + 1, 0, formItemCopy)
-      setTimeout(() => {
-        this.id = formItemCopy.id
-      }, 0)
+    handleChecked(key, val) {
+      const formData = { ...this.formData }
+      formData[key] = val
+      this.formData = formData
     },
   },
 }
