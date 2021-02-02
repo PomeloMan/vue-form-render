@@ -66,6 +66,16 @@ export function generateFormItems(type) {
   switch (type) {
     case 'input':
       return generateInputItems()
+    case 'textarea':
+      return generateInputItems()
+    case 'input-number':
+      return generateInputItems()
+    case 'date-picker':
+      return generateDatePickerItems()
+    case 'time-picker':
+      return generateDatePickerItems()
+    case 'checkbox':
+      return generateCheckboxItems()
     default:
       return generateFormConfigItems()
   }
@@ -110,6 +120,21 @@ export function generateFormConfigItems() {
 }
 
 export function generateInputItems() {
+  return [
+    ...generateBaseItems(),
+    { key: 'required', name: '必填项', type: 'checkbox' },
+    { key: 'pattern', name: '校验正则表达式', type: 'input' }
+  ]
+}
+
+export function generateDatePickerItems() {
+  return [
+    ...generateBaseItems(),
+    { key: 'required', name: '必填项', type: 'checkbox' }
+  ]
+}
+
+export function generateCheckboxItems() {
   return [...generateBaseItems()]
 }
 
@@ -136,19 +161,13 @@ export function generateBaseItems() {
     {
       key: 'disabled',
       name: '置灰',
-      type: 'checkbox',
-    },
-    {
-      key: 'required',
-      name: '必填项',
-      type: 'checkbox',
-    },
+      type: 'checkbox'
+    }
     // {
     //   key: 'required',
     //   name: '必填项',
     //   type: 'checkbox-group',
     //   options: [{ label: '必填项', value: true }]
     // },
-    { key: 'pattern', name: '校验正则表达式', type: 'input' }
   ]
 }

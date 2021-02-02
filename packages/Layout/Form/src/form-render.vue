@@ -123,7 +123,10 @@ export default {
         return this.schema.values
       },
       set(val) {
-        this.schema.values = val
+        this.schema.values = val // schema.values 变更不需要立刻刷新数据
+        // const { schema } = this
+        // schema.values = val
+        // this.$emit('change', { ...schema })
       },
     },
     // 表单项集合
@@ -140,7 +143,7 @@ export default {
         items.forEach((item) => {
           properties[item.id] = item
         })
-        const schema = { ...this.schema }
+        const { schema } = this
         schema.properties = properties
         if (items.length < this.formItems.length) {
           delete schema.__selected__
@@ -150,7 +153,7 @@ export default {
             schema.__selected__ = { ...selectedItem }
           }
         }
-        this.$emit('change', schema)
+        this.$emit('change', { ...schema })
       },
     },
     // 拖拽组件属性

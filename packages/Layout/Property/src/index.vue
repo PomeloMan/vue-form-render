@@ -28,7 +28,7 @@
             <template v-for="fieldItem in fieldItems">
               <vfr-form-item
                 :key="fieldItem.key"
-                :form="fieldData"
+                v-model="fieldData"
                 :formItem="fieldItem"
                 :hidden="fieldItem.hidden"
                 @checked="handleChecked(fieldItem.key, $event)"
@@ -79,15 +79,18 @@ export default {
     // 字段配置
     fieldData: {
       get() {
-        if (this.schema.__selected__) {
-          const id = this.schema.__selected__.id
-          return this.schema.properties[id]
+        const { schema } = this
+        if (schema.__selected__) {
+          const id = schema.__selected__.id
+          return schema.properties[id]
         }
-        return null
+        return {}
       },
       set(val) {
-        const id = this.schema.__selected__.id
-        this.schema.properties[id] = val
+        const { schema } = this
+        const id = schema.__selected__.id
+        schema.properties[id] = val
+        this.$emit('change', { ...schema })
       },
     },
     // 字段配置项
@@ -104,8 +107,8 @@ export default {
           const { schema } = this
           schema.values[key] = schema.values[old]
           delete schema.values[old]
-          this.schema.__selected__.key = key
-          this.$emit('change', schema)
+          schema.__selected__.key = key
+          // this.$emit('change', { ...schema })
         }
       },
     },

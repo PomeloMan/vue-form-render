@@ -74,8 +74,9 @@ export default {
     // 添加表单组件
     addFormItem(formItem) {
       this.$nextTick(() => {
-        const { properties } = this.schema
-        properties[formItem.id] = formItem
+        const { schema } = this
+        schema.properties[formItem.id] = formItem
+        this.schema = { ...schema }
         const { render } = this.$refs
         if (render) {
           render.id = formItem.id

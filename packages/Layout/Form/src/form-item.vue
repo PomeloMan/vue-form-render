@@ -26,6 +26,7 @@
         v-model="form[formItem.key]"
         :placeholder="formItem.name"
         :disabled="disabled"
+        @change="handleChange"
       />
     </template>
     <!-- textarea -->
@@ -34,6 +35,7 @@
         v-model="form[formItem.key]"
         :disabled="disabled"
         :auto-size="{ minRows: 4, maxRows: 4 }"
+        @change="handleChange"
       ></a-textarea>
     </template>
     <!-- input-number -->
@@ -44,14 +46,20 @@
         :max="formItem.max"
         :disabled="disabled"
         style="width: 100%"
+        @change="handleChange"
       />
     </template>
     <!-- radio -->
     <template v-if="formItem.type === 'radio'">
-      <a-radio-group v-model="form[formItem.key]" :disabled="disabled">
+      <a-radio-group
+        v-model="form[formItem.key]"
+        :disabled="disabled"
+        @change="handleChange"
+      >
         <a-radio
           :key="option.value"
           :value="option.value"
+          :disabled="option.disabled"
           v-for="option in formItem.options"
         >
           {{ option.label }}
@@ -68,6 +76,7 @@
             :max="formItem.max"
             :tip-formatter="formItem.tipFormatter"
             :disabled="disabled"
+            @change="handleChange"
           />
         </a-col>
         <a-col :span="8">
@@ -84,6 +93,7 @@
             "
             :disabled="disabled"
             style="width: 100%"
+            @change="handleChange"
           />
         </a-col>
       </a-row>
@@ -96,6 +106,7 @@
         :allow-clear="formItem.allowClear"
         :placeholder="formItem.name"
         :disabled="disabled"
+        @change="handleChange"
       >
         <a-select-option
           :key="option.value"
@@ -115,6 +126,12 @@
       >
         <!-- @change="handleChecked(formItem, $event.target.checked)" -->
         {{ formItem.name }}
+        <a-tooltip
+          v-if="formItem.descDisplay === 'icon' && formItem.desc"
+          :title="formItem.desc"
+        >
+          <a-icon type="info-circle" />
+        </a-tooltip>
       </a-checkbox>
     </template>
     <template v-if="formItem.type === 'checkbox-group'">
@@ -122,6 +139,7 @@
         v-model="form[formItem.key]"
         :options="formItem.options"
         :disabled="disabled"
+        @change="handleChange"
       ></a-checkbox-group>
     </template>
     <!-- date-picker -->
@@ -129,6 +147,8 @@
       <a-date-picker
         v-model="form[formItem.key]"
         style="width: 100%"
+        :disabled="disabled"
+        @change="handleChange"
       ></a-date-picker>
     </template>
     <!-- time-picker -->
@@ -136,6 +156,8 @@
       <a-time-picker
         v-model="form[formItem.key]"
         style="width: 100%"
+        :disabled="disabled"
+        @change="handleChange"
       ></a-time-picker>
     </template>
     <!-- tree-select -->
@@ -199,6 +221,10 @@ export default {
     ARow: Row,
     ACol: Col,
   },
+  model: {
+    prop: 'form',
+    event: 'change',
+  },
   props: {
     form: {
       type: Object,
@@ -257,6 +283,9 @@ export default {
     },
   },
   methods: {
+    handleChange() {
+      this.$emit('change', { ...this.form }) // 手动刷新数据
+    },
     handleChecked(formItem) {
       event.preventDefault()
       event.stopPropagation()
