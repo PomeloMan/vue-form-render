@@ -3,7 +3,7 @@
   <div class="vfr-component-layout">
     <slot name="basic">
       <div>
-        <p>基础组件</p>
+        <p>{{ translate('component.base') }}</p>
         <ul>
           <template v-for="comp in basicComponents">
             <div :key="comp.id" draggable="true">
@@ -21,53 +21,71 @@
 </template>
 
 <script>
+import { TanslateHandler } from '../../../Locale/index'
 import Divider from 'ant-design-vue/lib/divider'
 import { generateTimeBase64 } from '../../../Utils'
 
-const defaultOptions = [
-  { value: 'option1', label: '选项1' },
-  { value: 'option2', label: '选项2' },
-]
-const basicComponents = [
-  { name: '输入框', type: 'input' },
-  { name: '大输入框', type: 'textarea' },
-  { name: '数字输入框', type: 'input-number' },
-  { name: '日期选择', type: 'date-picker' },
-  { name: '时间选择', type: 'time-picker' },
-  { name: '是否选择', type: 'checkbox' },
-  { name: '是否开关', type: 'switch' },
-  {
-    name: '下拉选择',
-    type: 'select',
-    options: defaultOptions,
-    values: defaultOptions.map((o) => o.value),
-    labels: defaultOptions.map((o) => o.label),
-  },
-  {
-    name: '点击单选',
-    type: 'radio',
-    options: defaultOptions,
-    values: defaultOptions.map((o) => o.value),
-    labels: defaultOptions.map((o) => o.label),
-  },
-  {
-    name: '点击多选',
-    type: 'checkbox-group',
-    options: defaultOptions,
-    values: defaultOptions.map((o) => o.value),
-    labels: defaultOptions.map((o) => o.label),
-  },
-]
-
 export default {
   name: 'vfr-component-layout',
+  mixins: [TanslateHandler],
   components: {
     ADivider: Divider,
   },
-  data() {
-    return {
-      basicComponents,
-    }
+  props: {
+    locale: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  computed: {
+    defaultOptions() {
+      return [
+        {
+          value: 'option1',
+          label: this.translate('component.option', { num: 1 }),
+        },
+        {
+          value: 'option2',
+          label: this.translate('component.option', { num: 2 }),
+        },
+      ]
+    },
+    basicComponents() {
+      const { defaultOptions } = this
+      return [
+        { name: this.translate('component.input'), type: 'input' },
+        { name: this.translate('component.textarea'), type: 'textarea' },
+        {
+          name: this.translate('component.input-number'),
+          type: 'input-number',
+        },
+        { name: this.translate('component.date-picker'), type: 'date-picker' },
+        { name: this.translate('component.time-picker'), type: 'time-picker' },
+        { name: this.translate('component.checkbox'), type: 'checkbox' },
+        { name: this.translate('component.switch'), type: 'switch' },
+        {
+          name: this.translate('component.select'),
+          type: 'select',
+          options: defaultOptions,
+          values: defaultOptions.map((o) => o.value),
+          labels: defaultOptions.map((o) => o.label),
+        },
+        {
+          name: this.translate('component.radio'),
+          type: 'radio',
+          options: defaultOptions,
+          values: defaultOptions.map((o) => o.value),
+          labels: defaultOptions.map((o) => o.label),
+        },
+        {
+          name: this.translate('component.checkbox-group'),
+          type: 'checkbox-group',
+          options: defaultOptions,
+          values: defaultOptions.map((o) => o.value),
+          labels: defaultOptions.map((o) => o.label),
+        },
+      ]
+    },
   },
   methods: {
     select(formItem) {

@@ -1,14 +1,26 @@
 <template>
   <div id="app">
-    <vue-form-render v-model="schema"></vue-form-render>
+    <a-config-provider :locale="zhCN">
+      <div style="height: 100%">
+        <!-- <div @click="changeLocale">语言切换</div> -->
+        <vue-form-render v-model="schema" :locale="locale"></vue-form-render>
+      </div>
+    </a-config-provider>
   </div>
 </template>
 
 <script>
+import zhCN from 'ant-design-vue/lib/locale-provider/zh_CN'
+import zh from '../packages/Locale/zh'
+import en from '../packages/Locale/en'
+// import { use } from '../packages/Locale/index'
 export default {
   name: 'App',
   data() {
     return {
+      zhCN,
+      localeKey: 'zh',
+      locale: zh,
       schema: {
         values: {
           key1: '1',
@@ -36,6 +48,19 @@ export default {
         },
       },
     }
+  },
+  methods: {
+    changeLocale() {
+      if (this.localeKey === 'en') {
+        this.localeKey = 'zh'
+        this.locale = zh
+        // use(zh)
+      } else {
+        this.localeKey = 'en'
+        this.locale = en
+        // use(en)
+      }
+    },
   },
 }
 </script>

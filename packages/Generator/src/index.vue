@@ -5,6 +5,7 @@
     <vfr-component-layout
       class="vfr-component-layout"
       @select="addFormItem"
+      :locale="locale"
     ></vfr-component-layout>
     <!-- 表单 -->
     <vfr-form-render
@@ -42,6 +43,10 @@ export default {
   },
   props: {
     data: {
+      type: Object,
+      default: () => ({}),
+    },
+    locale: {
       type: Object,
       default: () => ({}),
     },
