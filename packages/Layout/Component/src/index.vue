@@ -24,6 +24,10 @@
 import Divider from 'ant-design-vue/lib/divider'
 import { generateTimeBase64 } from '../../../Utils'
 
+const defaultOptions = [
+  { value: 'option1', label: '选项1' },
+  { value: 'option2', label: '选项2' },
+]
 const basicComponents = [
   { name: '输入框', type: 'input' },
   { name: '大输入框', type: 'textarea' },
@@ -32,9 +36,27 @@ const basicComponents = [
   { name: '时间选择', type: 'time-picker' },
   { name: '是否选择', type: 'checkbox' },
   { name: '是否开关', type: 'switch' },
-  { name: '下拉选择', type: 'select' },
-  { name: '点击单选', type: 'radio' },
-  { name: '点击多选', type: 'checkbox-group' },
+  {
+    name: '下拉选择',
+    type: 'select',
+    options: defaultOptions,
+    values: defaultOptions.map((o) => o.value),
+    labels: defaultOptions.map((o) => o.label),
+  },
+  {
+    name: '点击单选',
+    type: 'radio',
+    options: defaultOptions,
+    values: defaultOptions.map((o) => o.value),
+    labels: defaultOptions.map((o) => o.label),
+  },
+  {
+    name: '点击多选',
+    type: 'checkbox-group',
+    options: defaultOptions,
+    values: defaultOptions.map((o) => o.value),
+    labels: defaultOptions.map((o) => o.label),
+  },
 ]
 
 export default {

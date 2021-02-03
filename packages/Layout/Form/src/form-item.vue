@@ -8,7 +8,10 @@
     :wrapperCol="wrapperCol(formItem)"
     :rules="getFormItemRules"
   >
-    <span slot="label" v-if="!['checkbox'].includes(formItem.type)">
+    <span
+      slot="label"
+      v-if="!['checkbox'].includes(formItem.type)"
+    >
       {{ formItem.name }}
       <a-tooltip
         v-if="formItem.descDisplay === 'icon' && formItem.desc"
@@ -48,7 +51,11 @@
     </template>
     <!-- radio -->
     <template v-if="formItem.type === 'radio'">
-      <a-radio-group v-model="form[formItem.key]" :disabled="disabled">
+      <a-radio-group
+        v-model="form[formItem.key]"
+        :disabled="disabled"
+        @change="handleChange"
+      >
         <a-radio
           :key="option.value"
           :value="option.value"
@@ -128,17 +135,12 @@
       </a-checkbox>
     </template>
     <template v-if="formItem.type === 'checkbox-group'">
-      <a-checkbox-group v-model="form[formItem.key]" :disabled="disabled">
-        <a-checkbox
-          :key="option.value"
-          :disabled="disabled"
-          :value="option.value"
-          v-for="option in formItem.options"
-          @click.native="handleChange(formItem, option.value)"
-        >
-          {{ option.label }}
-        </a-checkbox>
-      </a-checkbox-group>
+      <a-checkbox-group
+        v-model="form[formItem.key]"
+        :options="formItem.options"
+        :disabled="disabled"
+        @change="handleChange"
+      ></a-checkbox-group>
     </template>
     <!-- date-picker -->
     <template v-if="formItem.type === 'date-picker'">
@@ -291,19 +293,7 @@ export default {
       event.stopPropagation()
       const { form } = this
       if (formItem && formItem.key) {
-        if (formItem.type === 'checkbox-group') {
-          if (!form[formItem.key]) {
-            form[formItem.key] = []
-          }
-          const index = form[formItem.key].findIndex((v) => v === value)
-          if (index > -1) {
-            form[formItem.key].splice(index, 1)
-          } else {
-            form[formItem.key].push(value)
-          }
-        } else {
-          form[formItem.key] = value
-        }
+        form[formItem.key] = value
       }
       this.$emit('change', { ...form }) // 手动刷新数据
     },

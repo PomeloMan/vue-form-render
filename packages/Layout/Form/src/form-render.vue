@@ -4,7 +4,8 @@
     <div class="vfr-wrapper">
       <slot>
         <vfr-form-toolbar :menus="menus"></vfr-form-toolbar>
-        <div class="vfr-container" @click="cancelSelect">
+        <div class="vfr-container">
+          <div class="mask" @click="cancelSelect"></div>
           <a-form-model
             ref="form"
             :model="formData"
@@ -226,14 +227,9 @@ export default {
     },
     // 选中表单项
     select(formItem) {
-      // 阻止执行取消事件
-      event.preventDefault()
-      event.stopPropagation()
-      if (this.editable) {
-        if (this.id !== formItem.id) {
-          this.id = formItem.id
-          this.$emit('select', formItem)
-        }
+      if (this.editable && this.id !== formItem.id) {
+        this.id = formItem.id
+        this.$emit('select', formItem)
       }
     },
     handleEvents(name, value) {
@@ -250,15 +246,11 @@ export default {
     },
     // 删除表单项
     deleteFormField(formItem) {
-      event.preventDefault()
-      event.stopPropagation()
       this.cancelSelect()
       this.formItems = this.formItems.filter((item) => item.id !== formItem.id)
     },
     // 复制表单项
     copyFormField(formItem) {
-      event.preventDefault()
-      event.stopPropagation()
       const formItemCopy = { ...formItem }
       formItemCopy.id = generateTimeBase64()
       formItemCopy.key = formItemCopy.type + '_' + formItemCopy.id.substr(10, 8)
@@ -286,9 +278,15 @@ export default {
     height: 100%;
   }
   .vfr-container {
+    position: relative;
     flex: 1;
     overflow-y: auto;
     background-color: @layout-body-background;
+    .mask {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
     .ant-form {
       display: flex;
       flex-flow: wrap;

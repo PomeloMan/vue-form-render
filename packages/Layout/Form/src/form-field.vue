@@ -90,6 +90,8 @@ export default {
      * @param value 事件参数
      */
     handleEvents(name, value) {
+      event.preventDefault()
+      event.stopPropagation()
       this.$emit('events', name, value)
     },
   },
