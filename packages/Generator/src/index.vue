@@ -76,6 +76,7 @@ export default {
       this.$nextTick(() => {
         const { schema } = this
         schema.properties[formItem.id] = formItem
+        schema.values[formItem.key] = undefined
         this.schema = { ...schema }
         const { render } = this.$refs
         if (render) {

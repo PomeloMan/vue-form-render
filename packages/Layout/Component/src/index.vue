@@ -31,6 +31,10 @@ const basicComponents = [
   { name: '日期选择', type: 'date-picker' },
   { name: '时间选择', type: 'time-picker' },
   { name: '是否选择', type: 'checkbox' },
+  { name: '是否开关', type: 'switch' },
+  { name: '下拉选择', type: 'select' },
+  { name: '点击单选', type: 'radio' },
+  { name: '点击多选', type: 'checkbox-group' },
 ]
 
 export default {

@@ -39,7 +39,7 @@
                       editable: editable,
                     }"
                     :style="{ width: elementWidth(formItem) }"
-                    @click.native="select(formItem)"
+                    @click="select(formItem)"
                     @events="handleEvents"
                   ></vfr-form-field>
                 </template>

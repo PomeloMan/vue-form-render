@@ -1,5 +1,5 @@
 <template>
-  <div class="vfr-form-field">
+  <div class="vfr-form-field" @click="$emit('click', formItem)">
     <!-- 拖拽标识 -->
     <div class="drag-handler" v-if="configs.editable && id === formItem.id">
       <a-icon type="drag"></a-icon>
@@ -16,11 +16,10 @@
     </div>
     <!-- 表单项 -->
     <vfr-form-item
-      :form="formData"
+      v-model="formData"
       :formItem="formItem"
       :labelCol="() => labelCol(formItem)"
       :wrapperCol="() => wrapperCol(formItem)"
-      @checked="handleChecked(formItem.key, $event)"
     ></vfr-form-item>
   </div>
 </template>
@@ -93,11 +92,6 @@ export default {
     handleEvents(name, value) {
       this.$emit('events', name, value)
     },
-    handleChecked(key, val) {
-      const formData = { ...this.formData }
-      formData[key] = val
-      this.formData = formData
-    },
   },
 }
 </script>
@@ -108,6 +102,7 @@ export default {
   position: relative;
   display: inline-flex;
   width: 100%;
+  z-index: 1;
   &.editable {
     background-color: @component-background;
     padding: 20px 12px 0;

@@ -8,10 +8,7 @@
     :wrapperCol="wrapperCol(formItem)"
     :rules="getFormItemRules"
   >
-    <span
-      slot="label"
-      v-if="!['checkbox', 'checkbox-group'].includes(formItem.type)"
-    >
+    <span slot="label" v-if="!['checkbox'].includes(formItem.type)">
       {{ formItem.name }}
       <a-tooltip
         v-if="formItem.descDisplay === 'icon' && formItem.desc"
@@ -51,16 +48,13 @@
     </template>
     <!-- radio -->
     <template v-if="formItem.type === 'radio'">
-      <a-radio-group
-        v-model="form[formItem.key]"
-        :disabled="disabled"
-        @change="handleChange"
-      >
+      <a-radio-group v-model="form[formItem.key]" :disabled="disabled">
         <a-radio
           :key="option.value"
           :value="option.value"
           :disabled="option.disabled"
           v-for="option in formItem.options"
+          @click.native="handleChange(formItem, option.value)"
         >
           {{ option.label }}
         </a-radio>
@@ -102,7 +96,7 @@
     <template v-if="formItem.type === 'select'">
       <a-select
         v-model="form[formItem.key]"
-        :mode="formItem.mode"
+        :mode="formItem.multiple === true ? 'multiple' : formItem.mode"
         :allow-clear="formItem.allowClear"
         :placeholder="formItem.name"
         :disabled="disabled"
@@ -122,9 +116,8 @@
       <a-checkbox
         :checked="form[formItem.key]"
         :disabled="disabled"
-        @click.native="handleChecked(formItem)"
+        @click.native="handleChange(formItem, !form[formItem.key])"
       >
-        <!-- @change="handleChecked(formItem, $event.target.checked)" -->
         {{ formItem.name }}
         <a-tooltip
           v-if="formItem.descDisplay === 'icon' && formItem.desc"
@@ -135,12 +128,17 @@
       </a-checkbox>
     </template>
     <template v-if="formItem.type === 'checkbox-group'">
-      <a-checkbox-group
-        v-model="form[formItem.key]"
-        :options="formItem.options"
-        :disabled="disabled"
-        @change="handleChange"
-      ></a-checkbox-group>
+      <a-checkbox-group v-model="form[formItem.key]" :disabled="disabled">
+        <a-checkbox
+          :key="option.value"
+          :disabled="disabled"
+          :value="option.value"
+          v-for="option in formItem.options"
+          @click.native="handleChange(formItem, option.value)"
+        >
+          {{ option.label }}
+        </a-checkbox>
+      </a-checkbox-group>
     </template>
     <!-- date-picker -->
     <template v-if="formItem.type === 'date-picker'">
@@ -159,6 +157,9 @@
         :disabled="disabled"
         @change="handleChange"
       ></a-time-picker>
+    </template>
+    <template v-if="formItem.type === 'switch'">
+      <a-switch v-model="form[formItem.key]" @change="handleChange" />
     </template>
     <!-- tree-select -->
     <!-- <template v-if="item.type === 'tree-select'">
@@ -198,6 +199,7 @@ import Select from 'ant-design-vue/lib/select'
 import Checkbox from 'ant-design-vue/lib/checkbox'
 import DatePicker from 'ant-design-vue/lib/date-picker'
 import TimePicker from 'ant-design-vue/lib/time-picker'
+import Switch from 'ant-design-vue/lib/switch'
 import Row from 'ant-design-vue/lib/row'
 import Col from 'ant-design-vue/lib/col'
 export default {
@@ -218,6 +220,7 @@ export default {
     ACheckboxGroup: Checkbox.Group,
     ADatePicker: DatePicker,
     ATimePicker: TimePicker,
+    ASwitch: Switch,
     ARow: Row,
     ACol: Col,
   },
@@ -283,13 +286,26 @@ export default {
     },
   },
   methods: {
-    handleChange() {
-      this.$emit('change', { ...this.form }) // 手动刷新数据
-    },
-    handleChecked(formItem) {
+    handleChange(formItem, value) {
       event.preventDefault()
       event.stopPropagation()
-      this.$emit('checked', !this.form[formItem.key])
+      const { form } = this
+      if (formItem && formItem.key) {
+        if (formItem.type === 'checkbox-group') {
+          if (!form[formItem.key]) {
+            form[formItem.key] = []
+          }
+          const index = form[formItem.key].findIndex((v) => v === value)
+          if (index > -1) {
+            form[formItem.key].splice(index, 1)
+          } else {
+            form[formItem.key].push(value)
+          }
+        } else {
+          form[formItem.key] = value
+        }
+      }
+      this.$emit('change', { ...form }) // 手动刷新数据
     },
   },
 }

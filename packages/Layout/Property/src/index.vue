@@ -31,7 +31,6 @@
                 v-model="fieldData"
                 :formItem="fieldItem"
                 :hidden="fieldItem.hidden"
-                @checked="handleChecked(fieldItem.key, $event)"
               ></vfr-form-item>
             </template>
           </a-form-model>
@@ -88,6 +87,19 @@ export default {
       },
       set(val) {
         const { schema } = this
+        if (['select', 'checkbox-group', 'radio'].includes(val.type)) {
+          if (val.values && val.labels) {
+            // 设置选项
+            const options = []
+            val.values.forEach((v, i) => {
+              options.push({
+                value: v,
+                label: val.labels[i],
+              })
+            })
+            val.options = options
+          }
+        }
         const id = schema.__selected__.id
         schema.properties[id] = val
         this.$emit('change', { ...schema })
@@ -118,13 +130,7 @@ export default {
       activeKey: 'form-config',
     }
   },
-  methods: {
-    handleChecked(key, val) {
-      const fieldData = { ...this.fieldData }
-      fieldData[key] = val
-      this.fieldData = fieldData
-    },
-  },
+  methods: {},
 }
 </script>
 

@@ -76,6 +76,14 @@ export function generateFormItems(type) {
       return generateDatePickerItems()
     case 'checkbox':
       return generateCheckboxItems()
+    case 'checkbox-group':
+      return generateRadioItems()
+    case 'switch':
+      return generateBaseItems()
+    case 'select':
+      return generateSelectItems()
+    case 'radio':
+      return generateRadioItems()
     default:
       return generateFormConfigItems()
   }
@@ -136,6 +144,25 @@ export function generateDatePickerItems() {
 
 export function generateCheckboxItems() {
   return [...generateBaseItems()]
+}
+
+export function generateSelectItems() {
+  return [
+    ...generateBaseItems(),
+    { key: 'required', name: '必填项', type: 'checkbox' },
+    { key: 'multiple', name: '多选', type: 'checkbox' },
+    { key: 'values', name: '选项字段', type: 'select', mode: 'tags' },
+    { key: 'labels', name: '选项名称', type: 'select', mode: 'tags' }
+  ]
+}
+
+export function generateRadioItems() {
+  return [
+    ...generateBaseItems(),
+    { key: 'required', name: '必填项', type: 'checkbox' },
+    { key: 'values', name: '选项字段', type: 'select', mode: 'tags' },
+    { key: 'labels', name: '选项名称', type: 'select', mode: 'tags' }
+  ]
 }
 
 /**
